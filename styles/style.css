@@ -33,10 +33,10 @@ ul li {
     display: inline-block;
     margin-right: 60px;
     margin-bottom: 60px;
-    width: 200px;
+    width: 200px;height: 200px;
     padding: 0;
     border: none;
-    line-height: 200px;
+    float: left;
 }
 
 ul li:nth-child(4n) {
@@ -54,7 +54,7 @@ a {
     line-height: 200px;
 }
 
-.search {
+.search-wrapper {
     width: 100%;
     height: 80px;
     background-color: white;
@@ -63,7 +63,7 @@ a {
     z-index: 10;
 }
 
-.search input {
+#searchField {
     height: 30px;
     width: 460px;
     border-radius: 5px;
