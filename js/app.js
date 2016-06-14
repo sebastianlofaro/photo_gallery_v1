@@ -1,7 +1,11 @@
 var $overlay = $('<div id=overlay></div>');
+var $leftArrow = $('<span class=left-arrow></span>');
 var $image = $('<img>');
+var $rightArrow = $('<span class=right-arrow></span>');
 var $caption = $('<p></p>')
+var $imageList = $("#image-list");
 var counter = 0;
+var arrowClicked = false;
 
 var images = [
     {
@@ -66,17 +70,20 @@ var images = [
     },
 ]
 
+$overlay.append($leftArrow);
 $overlay.append($image);
+$overlay.append($rightArrow);
 $overlay.append($caption);
 $('body').append($overlay);
+
+
 
 $('a').on("click", function (event) {
     event.preventDefault();
 
+    console.log(this);
     var imageLocation = $(this).attr("href");
     var captionValue = $(this).children().attr("alt");
-    console.log(imageLocation);
-    console.log(captionValue);
 
     $image.attr("src", imageLocation);
     $caption.text(captionValue);
@@ -85,20 +92,46 @@ $('a').on("click", function (event) {
 });
 
 $("#overlay").on('click', function () {
-    $overlay.hide();
+    if (!arrowClicked) {
+        $overlay.hide();
+    } else {
+        arrowClicked = false;
+    }
 });
+
+$(".right-arrow").on('click', function (event) {
+    arrowClicked = true;
+    var test = this;
+    test = this.prev();
+    console.log(test);
+});
+
 
 
 // When you type in the search field
 $("#searchField").on("keyup", function (event) {
+    $imageList.empty();
     for (image in images) {
         var testImage = images[image].caption
         var testValue = $("#searchField").val()
         if (testImage.toLowerCase().includes(testValue.toLowerCase())) {
-            console.log(images[image].image);
+            $imageList.append('<li><a href="' + images[image].image + '"><img src="' + images[image].thumbnail + '" alt="' + images[image].caption + '"></a></li>')
         }
     }
-    console.log("----------------------BREAK---------------------------");
+
+
+    $('a').on("click", function (event) {
+        event.preventDefault();
+
+        var imageLocation = $(this).attr("href");
+        var captionValue = $(this).children().attr("alt");
+
+        $image.attr("src", imageLocation);
+        $caption.text(captionValue);
+
+        $overlay.show();
+    });
+
 });
 
 //return all images with alt attribute that matches the query text
