@@ -1,12 +1,4 @@
-var $overlay = $('<div id=overlay></div>');
-var $leftArrow = $('<span class=left-arrow></span>');
-var $image = $('<img>');
-var $rightArrow = $('<span class=right-arrow></span>');
-var $caption = $('<p></p>')
-var $imageList = $("#image-list");
-var counter = 0;
-var arrowClicked = false;
-
+//List of all images
 var images = [
     {
         image: "Photos/01.jpg",
@@ -67,72 +59,103 @@ var images = [
         image: "Photos/12.jpg",
         thumbnail: "Photos/Thumbnails/12.jpg",
         caption: "Bluebells - I walked through this meadow of bluebells and got a good view of the snow on the mountain before the fog came in."
-    },
-]
+    }
+];
 
+
+var $overlay = $('<div id=overlay></div>');
+var $leftArrow = $('<span class=left-arrow></span>');
+var $image = $('<img>');
+var $rightArrow = $('<span class=right-arrow></span>');
+var $caption = $('<p></p>')
+
+var $imageList = $("#image-list");
+var currentImage;
+
+
+$(document).ready(function () {
+    //add the initial images on load
+    for (image in images) {
+        $imageList.append('<li class="show"><a href="' + images[image].image + '"><img src="' + images[image].thumbnail + '" alt="' + images[image].caption + '"></a></li>');
+    };
+    console.log("this is happening");
+});
+
+
+
+//----------Build the overlay----------
+//add the left arrow to the overlay
 $overlay.append($leftArrow);
+//add the image to the overlay
 $overlay.append($image);
+//add the right arrow to the overlay
 $overlay.append($rightArrow);
+//add the caption to the overlay
 $overlay.append($caption);
+//add the overlay to the body
 $('body').append($overlay);
 
 
+//function that shows the overlay
+function showOverlayWithImage(selectedImage) {
+    var imageLocation = $(selectedImage).attr("href");
+    var captionValue = $(selectedImage).children().attr("alt");
 
-$('a').on("click", function (event) {
-    event.preventDefault();
-
-    console.log(this);
-    var imageLocation = $(this).attr("href");
-    var captionValue = $(this).children().attr("alt");
+    currentImage = $(selectedImage).parent().index();
+    console.log(currentImage);
 
     $image.attr("src", imageLocation);
     $caption.text(captionValue);
 
-    $overlay.show();
+    //display the overlay (gracefully)
+    $overlay.fadeIn(250);
+}
+
+
+
+//handle click on an image
+$("body").on("click", "a", function (event) {
+    event.preventDefault();
+    showOverlayWithImage(this);
 });
 
-$("#overlay").on('click', function () {
-    if (!arrowClicked) {
-        $overlay.hide();
-    } else {
-        arrowClicked = false;
-    }
+//exit overlay when clicked on
+$("#overlay").on("click", function () {
+    $(this).fadeOut(250);
 });
 
-$(".right-arrow").on('click', function (event) {
-    arrowClicked = true;
-    var test = this;
-    test = this.prev();
-    console.log(test);
+$overlay.on("click", ".left-arrow", function () {
+    console.log("arrow clicked");
 });
 
 
 
-// When you type in the search field
-$("#searchField").on("keyup", function (event) {
-    $imageList.empty();
-    for (image in images) {
-        var testImage = images[image].caption
-        var testValue = $("#searchField").val()
-        if (testImage.toLowerCase().includes(testValue.toLowerCase())) {
-            $imageList.append('<li><a href="' + images[image].image + '"><img src="' + images[image].thumbnail + '" alt="' + images[image].caption + '"></a></li>')
+//----------Search----------
+$('#searchField').on("keyup", function () {
+
+    //loop through images and test for search string
+    $('#image-list li').each(function (index) {
+
+        //store the value of the search in a variable
+        var $searchQuery = $("#searchField").val().toLowerCase();
+        //store the value of each image caption in a variable
+        var $imageCaption = $imageList.children().eq(index).children().children().attr('alt').toLowerCase();
+        //store the li
+        var $imageLi = $imageList.children().eq(index);
+
+        //test image caption against search query
+        if ($imageCaption.includes($searchQuery)) {
+            //match
+            //add class of show to li
+            if ($imageLi.hasClass('hide')) {
+                $imageLi.removeClass('hide').addClass('show');
+            }
+        } else {
+            //not match
+            //add class of hide to li
+            if ($imageLi.hasClass('show')) {
+                $imageLi.removeClass('show').addClass('hide');
+            }
         }
-    }
-
-
-    $('a').on("click", function (event) {
-        event.preventDefault();
-
-        var imageLocation = $(this).attr("href");
-        var captionValue = $(this).children().attr("alt");
-
-        $image.attr("src", imageLocation);
-        $caption.text(captionValue);
-
-        $overlay.show();
-    });
-
+    })
 });
-
-//return all images with alt attribute that matches the query text
-// display only returned images

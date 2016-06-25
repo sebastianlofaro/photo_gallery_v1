@@ -20,6 +20,10 @@ body {
     background: white;
 }
 
+:nth-child(4n) {
+    margin-right: 0;
+}
+
 ul {
     list-style: none;
     margin: 0 auto;
@@ -38,10 +42,6 @@ ul li {
     padding: 0;
     border: none;
     float: left;
-}
-
-ul li:nth-child(4n) {
-    margin-right: 0;
 }
 
 ul li img {
@@ -81,6 +81,16 @@ ul {
     position: absolute;
 }
 
+.show {
+    display: inline-block;
+    transition-duration: 1s;
+}
+
+.hide {
+    display: none;
+    transition-duration: 1s;
+}
+
 
 /* Overlay */
 
@@ -107,9 +117,10 @@ ul {
     width: 100px;
     display: inline-block;
     z-index: 30;
-    float: left;
-    margin-top: 330px;
+    top: 330px;
     background-repeat: no-repeat;
+    position: absolute;
+    left: 20px;
 }
 
 .right-arrow {
@@ -118,9 +129,10 @@ ul {
     width: 100px;
     display: inline-block;
     z-index: 30;
-    float: right;
-    margin-top: 330px;
+    top: 330px;
     background-repeat: no-repeat;
+    position: absolute;
+    right: 20px;
 }
 
 #overlay p {
