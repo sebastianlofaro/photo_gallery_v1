@@ -65,20 +65,25 @@ var images = [
 
 var $overlay = $('<div id=overlay></div>');
 var $leftArrow = $('<span class=left-arrow></span>');
-var $image = $('<img>');
+var $image = $('<img class=overlayImage>');
 var $rightArrow = $('<span class=right-arrow></span>');
-var $caption = $('<p></p>')
+var $caption = $('<p class=overlayCaption></p>')
 
 var $imageList = $("#image-list");
-var currentImage;
+var $currentImage;
+var arrowClicked = false;
+
+var tempListOfSearchedImages = [];
+var selectedImageIndex;
+var indexOfNextImage;
 
 
 $(document).ready(function () {
     //add the initial images on load
     for (image in images) {
+        tempListOfSearchedImages.push(parseInt(image));
         $imageList.append('<li class="show"><a href="' + images[image].image + '"><img src="' + images[image].thumbnail + '" alt="' + images[image].caption + '"></a></li>');
     };
-    console.log("this is happening");
 });
 
 
@@ -101,19 +106,24 @@ function showOverlayWithImage(selectedImage) {
     var imageLocation = $(selectedImage).attr("href");
     var captionValue = $(selectedImage).children().attr("alt");
 
-    currentImage = $(selectedImage).parent().index();
-    console.log(currentImage);
+    selectedImageIndex = $(selectedImage).parent().index();
+    indexOfNextImage = tempListOfSearchedImages.indexOf(selectedImageIndex);
 
+    //set the caption on the image
     $image.attr("src", imageLocation);
     $caption.text(captionValue);
 
     //display the overlay (gracefully)
     $overlay.fadeIn(250);
+
+
 }
 
 
+//                             ***************************************
+//                             ---------- Click on an Image ----------
+//                             ***************************************
 
-//handle click on an image
 $("body").on("click", "a", function (event) {
     event.preventDefault();
     showOverlayWithImage(this);
@@ -121,20 +131,74 @@ $("body").on("click", "a", function (event) {
 
 //exit overlay when clicked on
 $("#overlay").on("click", function () {
-    $(this).fadeOut(250);
+    //this if statement prevents the overlay from hiding when clicking on an arrow.
+    if (!arrowClicked) {
+        $(this).fadeOut(250);
+    } else {
+        arrowClicked = false;
+    }
 });
+
+
+
+//                              **************************************
+//                              ---------- Left arrow Click ----------
+//                              **************************************
 
 $overlay.on("click", ".left-arrow", function () {
-    console.log("arrow clicked");
+    arrowClicked = true;
+
+    //get the index of the selected image in the tempList array
+    indexOfNextImage -= 1;
+
+    //check for end of image list and loop if necessary
+    if (indexOfNextImage < 0) {
+        indexOfNextImage = tempListOfSearchedImages.length - 1;
+    }
+
+    //change the image
+    $('.overlayImage').attr("src", images[tempListOfSearchedImages[indexOfNextImage]].image);
+    //change the caption
+    $('.overlayCaption').text(images[tempListOfSearchedImages[indexOfNextImage]].caption);
 });
 
 
 
-//----------Search----------
+//                              **************************************
+//                              ---------- Right arrow Click ----------
+//                              **************************************
+
+$overlay.on("click", ".right-arrow", function () {
+    arrowClicked = true;
+
+    //get the index of the selected image in the tempList array
+    indexOfNextImage += 1;
+
+    //check for end of image list and loop if necessary
+    if (indexOfNextImage >= tempListOfSearchedImages.length) {
+        indexOfNextImage = 0;
+    }
+
+    //change the image
+    $('.overlayImage').attr("src", images[tempListOfSearchedImages[indexOfNextImage]].image);
+    //change the caption
+    $('.overlayCaption').text(images[tempListOfSearchedImages[indexOfNextImage]].caption);
+});
+
+
+
+//                                  ****************************
+//                                  ---------- Search ----------
+//                                  ****************************
+
 $('#searchField').on("keyup", function () {
+
+    //clear the temporary list
+    tempListOfSearchedImages = [];
 
     //loop through images and test for search string
     $('#image-list li').each(function (index) {
+
 
         //store the value of the search in a variable
         var $searchQuery = $("#searchField").val().toLowerCase();
@@ -143,9 +207,12 @@ $('#searchField').on("keyup", function () {
         //store the li
         var $imageLi = $imageList.children().eq(index);
 
+
         //test image caption against search query
         if ($imageCaption.includes($searchQuery)) {
             //match
+            //create an aray of image indexes of images that match the search criteria.
+            tempListOfSearchedImages.push(index);
             //add class of show to li
             if ($imageLi.hasClass('hide')) {
                 $imageLi.removeClass('hide').addClass('show');
